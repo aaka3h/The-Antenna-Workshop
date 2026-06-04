@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Antenna Workshop — DIY Antenna Wiki</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap');
+
+    :root {
+      --cream:    #f5edd6;
+      --parchment:#ede0c0;
+      --brown:    #5c3d1e;
+      --darkbrown:#3a2410;
+      --rust:     #b84c1a;
+      --gold:     #c9a227;
+      --olive:    #6b6b2a;
+      --ink:      #2a1a0a;
+      --copper:   #b87333;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--darkbrown);
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 24px, rgba(0,0,0,0.08) 25px),
+        repeating-linear-gradient(90deg, transparent, transparent 24px, rgba(0,0,0,0.04) 25px);
+      font-family: 'Courier Prime', monospace;
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--darkbrown);
+      border-bottom: 4px solid var(--gold);
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    header h1 {
+      font-family: 'Special Elite', cursive;
+      color: var(--gold);
+      font-size: 1.8rem;
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 0 #000;
+    }
+    header h1 span { color: var(--rust); }
+    .header-sub {
+      color: var(--parchment);
+      font-size: 0.78rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
+    .signal-icon {
+      font-size: 2rem;
+      animation: pulse 2s ease-in-out infinite;
+      color: var(--gold);
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+    }
+
+    /* ── Layout ── */
+    .wrapper {
+      display: flex;
+      max-width: 1400px;
+      margin: 0 auto;
+      gap: 0;
+    }
+
+    /* ── Sidebar ── */
+    aside {
+      width: 260px;
+      min-width: 260px;
+      background: var(--darkbrown);
+      border-right: 3px solid var(--gold);
+      padding: 24px 0;
+      position: sticky;
+      top: 73px;
+      height: calc(100vh - 73px);
+      overflow-y: auto;
+    }
+    .sidebar-title {
+      font-family: 'Special Elite', cursive;
+      color: var(--gold);
+      font-size: 0.75rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      padding: 0 18px 12px;
+      border-bottom: 1px solid rgba(201,162,39,0.3);
+      margin-bottom: 10px;
+    }
+    aside a {
+      display: block;
+      padding: 10px 18px;
+      color: var(--parchment);
+      text-decoration: none;
+      font-size: 0.85rem;
+      border-left: 3px solid transparent;
+      transition: all 0.2s;
+      line-height: 1.3;
+    }
+    aside a:hover, aside a.active {
+      background: rgba(201,162,39,0.12);
+      border-left-color: var(--gold);
+      color: var(--gold);
+    }
+    aside a .tag {
+      display: inline-block;
+      font-size: 0.65rem;
+      background: var(--rust);
+      color: #fff;
+      padding: 1px 5px;
+      border-radius: 2px;
+      margin-left: 6px;
+      vertical-align: middle;
+      letter-spacing: 1px;
+    }
+    aside a .tag.easy  { background: var(--olive); }
+    aside a .tag.med   { background: #8b6914; }
+    aside a .tag.hard  { background: #7a1c1c; }
+
+    /* ── Main content ── */
+    main {
+      flex: 1;
+      background: var(--cream);
+      background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      min-height: calc(100vh - 73px);
+      padding: 40px 48px;
+    }
+
+    /* ── Intro banner ── */
+    .intro-banner {
+      background: var(--darkbrown);
+      border: 3px solid var(--gold);
+      border-radius: 4px;
+      padding: 28px 36px;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .intro-banner::before {
+      content: '📡';
+      position: absolute;
+      right: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 4rem;
+      opacity: 0.15;
+    }
+    .intro-banner h2 {
+      font-family: 'Special Elite', cursive;
+      color: var(--gold);
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+    }
+    .intro-banner p {
+      color: var(--parchment);
+      font-size: 0.9rem;
+      line-height: 1.7;
+      max-width: 680px;
+    }
+    .stats-row {
+      display: flex;
+      gap: 24px;
+      margin-top: 18px;
+    }
+    .stat {
+      text-align: center;
+      color: var(--parchment);
+    }
+    .stat strong {
+      display: block;
+      font-family: 'Special Elite', cursive;
+      font-size: 1.4rem;
+      color: var(--gold);
+    }
+    .stat span { font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.7; }
+
+    /* ── Antenna card ── */
+    .antenna-card {
+      background: var(--parchment);
+      border: 2px solid var(--brown);
+      border-radius: 4px;
+      margin-bottom: 48px;
+      box-shadow: 4px 4px 0 var(--brown);
+      scroll-margin-top: 90px;
+    }
+    .card-header {
+      background: var(--brown);
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-header h2 {
+      font-family: 'Special Elite', cursive;
+      color: var(--gold);
+      font-size: 1.4rem;
+      letter-spacing: 1px;
+    }
+    .card-header .badges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .badge {
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 2px;
+      font-weight: bold;
+    }
+    .badge.diff-easy { background: var(--olive); color: #fff; }
+    .badge.diff-med  { background: #8b6914; color: #fff; }
+    .badge.diff-hard { background: #7a1c1c; color: #fff; }
+    .badge.type      { background: var(--copper); color: #fff; }
+
+    .card-body { padding: 28px; }
+
+    /* ── Section blocks inside card ── */
+    .card-desc {
+      font-size: 0.93rem;
+      line-height: 1.8;
+      color: var(--ink);
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px dashed var(--copper);
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    @media(max-width:800px){ .card-grid { grid-template-columns: 1fr; } }
+
+    .info-block {
+      background: rgba(92,61,30,0.07);
+      border: 1px solid var(--copper);
+      border-radius: 3px;
+      padding: 16px 20px;
+    }
+    .info-block h3 {
+      font-family: 'Special Elite', cursive;
+      font-size: 0.85rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--rust);
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(184,76,26,0.3);
+    }
+    .info-block ul {
+      list-style: none;
+      padding: 0;
+    }
+    .info-block ul li {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      padding: 3px 0 3px 16px;
+      position: relative;
+      color: var(--ink);
+    }
+    .info-block ul li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      color: var(--copper);
+    }
+
+    /* ── Steps ── */
+    .steps-title {
+      font-family: 'Special Elite', cursive;
+      font-size: 0.85rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--rust);
+      margin-bottom: 16px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(184,76,26,0.3);
+    }
+    .steps {
+      counter-reset: step;
+    }
+    .step {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 14px;
+      align-items: flex-start;
+    }
+    .step-num {
+      counter-increment: step;
+      min-width: 32px;
+      height: 32px;
+      background: var(--rust);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Special Elite', cursive;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .step-num::before { content: counter(step); }
+    .step-text {
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: var(--ink);
+      padding-top: 6px;
+    }
+    .step-text strong { color: var(--rust); }
+
+    /* ── Tip box ── */
+    .tip-box {
+      background: rgba(201,162,39,0.12);
+      border-left: 4px solid var(--gold);
+      padding: 12px 16px;
+      margin-top: 20px;
+      border-radius: 0 3px 3px 0;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--darkbrown);
+    }
+    .tip-box strong { color: var(--brown); font-family: 'Special Elite', cursive; letter-spacing: 1px; }
+
+    /* ── Diagram SVG area ── */
+    .diagram {
+      background: var(--darkbrown);
+      border: 1px solid var(--copper);
+      border-radius: 3px;
+      padding: 16px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .diagram svg { max-width: 100%; height: auto; }
+
+    /* ── Divider ── */
+    .vintage-divider {
+      text-align: center;
+      color: var(--copper);
+      font-size: 1.2rem;
+      letter-spacing: 8px;
+      margin: 12px 0 28px;
+      opacity: 0.5;
+    }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--darkbrown);
+      border-top: 3px solid var(--gold);
+      text-align: center;
+      padding: 20px;
+      color: var(--parchment);
+      font-size: 0.78rem;
+      letter-spacing: 2px;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>The <span>Antenna</span> Workshop</h1>
+    <div class="header-sub">DIY Antenna Encyclopedia &amp; Build Guide</div>
+  </div>
+  <div class="signal-icon">〰</div>
+</header>
+
+<div class="wrapper">
+
+  <!-- ── SIDEBAR ── -->
+  <aside>
+    <div class="sidebar-title">Antenna Index</div>
+    <a href="#dipole">Half-Wave Dipole <span class="tag easy">Easy</span></a>
+    <a href="#groundplane">Ground Plane <span class="tag easy">Easy</span></a>
+    <a href="#cantenna">Cantenna (WiFi) <span class="tag easy">Easy</span></a>
+    <a href="#yagi">Yagi-Uda <span class="tag med">Medium</span></a>
+    <a href="#jpole">J-Pole <span class="tag med">Medium</span></a>
+    <a href="#loop">Magnetic Loop <span class="tag med">Medium</span></a>
+    <a href="#parabolic">Parabolic Dish <span class="tag med">Medium</span></a>
+    <a href="#biquad">Bi-Quad (WiFi) <span class="tag med">Medium</span></a>
+    <a href="#beverage">Beverage Wire <span class="tag med">Medium</span></a>
+    <a href="#quad">Quad Antenna <span class="tag hard">Hard</span></a>
+    <a href="#helical">Helical Antenna <span class="tag hard">Hard</span></a>
+    <a href="#discone">Discone (Scanner) <span class="tag hard">Hard</span></a>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main>
+
+    <!-- Intro -->
+    <div class="intro-banner">
+      <h2>Welcome to The Antenna Workshop</h2>
+      <p>A complete field guide to building your own antennas from scratch. Each entry covers what the antenna is for, what you need, and step-by-step build instructions. Whether you're extending WiFi, listening to shortwave, or chasing amateur radio contacts — there's a DIY antenna here for you.</p>
+      <div class="stats-row">
+        <div class="stat"><strong>12</strong><span>Antennas</span></div>
+        <div class="stat"><strong>3</strong><span>Skill Levels</span></div>
+        <div class="stat"><strong>100%</strong><span>DIY</span></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- 1. DIPOLE -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="antenna-card" id="dipole">
+      <div class="card-header">
+        <h2>📻 Half-Wave Dipole Antenna</h2>
+        <div class="badges">
+          <span class="badge diff-easy">Easy</span>
+          <span class="badge type">Omni / HF / VHF</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">
+          The dipole is the mother of all antennas — the simplest resonant antenna you can build. Two equal-length wires fed from the center, it produces a donut-shaped radiation pattern perpendicular to the wire. Perfect for FM radio, amateur HF/VHF, and general-purpose receiving. Most other antennas are derived from the dipole.
+        </p>
+
+        <!-- Diagram -->
+        <div class="diagram">
+          <svg viewBox="0 0 420 100" xmlns="http://www.w3.org/2000/svg">
+            <line x1="30" y1="50" x2="190" y2="50" stroke="#c9a227" stroke-width="4"/>
+            <line x1="230" y1="50" x2="390" y2="50" stroke="#c9a227" stroke-width="4"/>
+            <rect x="188" y="38" width="44" height="24" fill="#b87333" rx="3"/>
+            <text x="210" y="55" text-anchor="middle" fill="#f5edd6" font-size="10" font-family="monospace">FEED</text>
+            <text x="105" y="42" text-anchor="middle" fill="#c9a227" font-size="11" font-family="monospace">← λ/4 →</text>
+            <text x="310" y="42" text-anchor="middle" fill="#c9a227" font-size="11" font-family="monospace">← λ/4 →</text>
+            <text x="210" y="90" text-anchor="middle" fill="#f5edd6" font-size="10" font-family="monospace" opacity="0.6">Total length = λ/2 (half wavelength)</text>
+            <line x1="30" y1="50" x2="30" y2="70" stroke="#888" stroke-width="1" stroke-dasharray="3"/>
+            <line x1="390" y1="50" x2="390" y2="70" stroke="#888" stroke-width="1" stroke-dasharray="3"/>
+          </svg>
+        </div>
+
+        <div class="card-grid">
+          <div class="info-block">
+            <h3>Materials Needed</h3>
+            <ul>
+              <li>Copper or aluminium wire (gauge 14–18 AWG)</li>
+              <li>SO-239 or BNC female connector</li>
+              <li>Coaxial cable (RG-58 or RG-8)</li>
+              <li>Electrical tape or heat-shrink tubing</li>
+              <li>Two insulators (or thick plastic)</li>
+              <li>Rope or string for support</li>
+              <li>Solder + soldering iron</li>
+            </ul>
+          </div>
+          <div class="info-block">
+            <h3>Best Used For</h3>
+            <ul>
+              <li>FM radio reception (88–108 MHz)</li>
+              <li>Amateur HF bands (40m, 20m, 10m, etc.)</li>
+              <li>VHF/UHF amateur radio (2m, 70cm)</li>
+              <li>General receiving antenna</li>
+              <li>Base station or portable operation</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="steps-title">▸ Build Instructions</div>
+        <div class="steps">
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Calculate length:</strong> Use the formula <strong>Length (meters) = 143 / frequency (MHz)</strong>. For FM (100 MHz): 143/100 = 1.43m total, so each arm is 71.5 cm. For 2m amateur band (145 MHz): each arm ≈ 49 cm.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Cut wire:</strong> Cut two equal pieces of wire to the calculated quarter-wavelength. Strip 2 cm of insulation from both ends of each piece.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Connect to feedpoint:</strong> Solder one wire to the center pin of your coax connector, and the other wire to the outer shield braid. Keep the connection clean and short.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Insulate the feedpoint:</strong> Wrap the connection in electrical tape or use a heat-shrink sleeve. The two arms must not touch each other.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Hang horizontally:</strong> String the antenna between two supports at the ends using insulators. The coax hangs down from the center. Keep the wire as straight as possible.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Connect and test:</strong> Run the coax to your radio. For best results, mount at least one half-wavelength above the ground.</div></div>
+        </div>
+
+        <div class="tip-box"><strong>Pro Tip:</strong> Adding a 1:1 choke balun at the feedpoint prevents RF from flowing down the coax shield, dramatically improving performance and reducing interference from nearby electronics.</div>
+      </div>
+    </div>
+
+    <div class="vintage-divider">— ✦ —</div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- 2. GROUND PLANE -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="antenna-card" id="groundplane">
+      <div class="card-header">
+        <h2>🗼 Ground Plane Vertical Antenna</h2>
+        <div class="badges">
+          <span class="badge diff-easy">Easy</span>
+          <span class="badge type">Vertical / Omni</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">
+          A vertical quarter-wave antenna with radials extending outward to simulate a ground plane. It radiates in all horizontal directions (omnidirectional) and is excellent for mobile, portable, and base station use. Widely used for VHF/UHF ham radio, ADS-B aircraft tracking, and weather satellite reception.
+        </p>
+        <div class="card-grid">
+          <div class="info-block">
+            <h3>Materials Needed</h3>
+            <ul>
+              <li>Stiff copper or steel wire (3–4 radials + 1 vertical)</li>
+              <li>SO-239 chassis-mount connector</li>
+              <li>Solder + iron</li>
+              <li>Short piece of PVC pipe or wooden dowel</li>
+              <li>Coaxial cable (RG-58)</li>
+              <li>Epoxy or hot glue for support</li>
+            </ul>
+          </div>
+          <div class="info-block">
+            <h3>Best Used For</h3>
+            <ul>
+              <li>ADS-B aircraft tracking (1090 MHz)</li>
+              <li>NOAA weather satellites (137 MHz)</li>
+              <li>VHF/UHF amateur radio (2m / 70cm)</li>
+              <li>Marine VHF (156–174 MHz)</li>
+              <li>Scanner receivers (wide range)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="steps-title">▸ Build Instructions</div>
+        <div class="steps">
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Calculate:</strong> Vertical element = 71.25 / frequency (MHz) in cm. Radials = same length. For 145 MHz (2m): vertical ≈ 49 cm. For 1090 MHz (ADS-B): ≈ 6.5 cm.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Cut wire:</strong> Cut 1 piece for the vertical element and 4 pieces for radials, all equal length. Use stiff wire (coat hanger wire works great).</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Mount to connector:</strong> Solder the vertical element to the center pin of the SO-239. Drill or bend the radials and solder them to the outer flange of the connector, equally spaced 90° apart.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Angle the radials:</strong> Bend each radial downward at 45° from horizontal. This improves impedance matching to 50Ω coax.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Mount vertically:</strong> Secure to a mast or PVC pipe with the vertical element pointing straight up. Connect coax to the SO-239 and run to your receiver or radio.</div></div>
+        </div>
+        <div class="tip-box"><strong>Pro Tip:</strong> For ADS-B and SDR use, build this antenna with brass welding rods — they're stiff, easy to solder, and cheap. A ground plane for 1090 MHz is tiny enough to fit in your palm.</div>
+      </div>
+    </div>
+
+    <div class="vintage-divider">— ✦ —</div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- 3. CANTENNA -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="antenna-card" id="cantenna">
+      <div class="card-header">
+        <h2>🥫 Cantenna — WiFi Tin Can Antenna</h2>
+        <div class="badges">
+          <span class="badge diff-easy">Easy</span>
+          <span class="badge type">Directional / 2.4 GHz</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">
+          The legendary Cantenna — a directional waveguide antenna built from a food tin can. Works as a high-gain directional antenna for 2.4 GHz WiFi. Point it at a distant router or access point to extend your WiFi range by hundreds of metres. Popularised by the early 2000s wardriving community.
+        </p>
+        <div class="card-grid">
+          <div class="info-block">
+            <h3>Materials Needed</h3>
+            <ul>
+              <li>Tin can: 83–92 mm inner diameter (Pringles can works, metal coffee tin is better)</li>
+              <li>N-type female chassis connector (or SMA)</li>
+              <li>Short piece of thick copper wire (probe)</li>
+              <li>Pigtail cable: N-Male to RP-SMA for router</li>
+              <li>Drill + step bit</li>
+              <li>Ruler + marker</li>
+              <li>Solder + iron</li>
+            </ul>
+          </div>
+          <div class="info-block">
+            <h3>Best Used For</h3>
+            <ul>
+              <li>Long-range WiFi (2.4 GHz)</li>
+              <li>Point-to-point WiFi links (up to 1 km+)</li>
+              <li>WiFi network extension</li>
+              <li>Wardriving / site surveys</li>
+              <li>ESP32 / Raspberry Pi WiFi boost</li>
+            </ul>
+          </div>
+        </div>
+        <div class="steps-title">▸ Build Instructions</div>
+        <div class="steps">
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Choose can size:</strong> Inner diameter should be between 70–110 mm for 2.4 GHz. Ideal is 83 mm. A standard coffee tin or vegetable can works perfectly. Remove one end completely.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Calculate probe position:</strong> The probe must be placed at <strong>1/4 wavelength from the closed end</strong>. At 2.4 GHz, λ = 125 mm, so position = <strong>31.2 mm from the closed bottom</strong>.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Drill hole:</strong> Mark and drill a hole for your N-type connector exactly 31.2 mm from the closed end, centred on the can's circumference. The hole should snugly fit the connector.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Make the probe:</strong> Cut a piece of thick copper wire to <strong>30.5 mm</strong> (quarter wavelength at 2.45 GHz). Solder it to the center pin of the N connector, sticking straight inward into the can.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Mount connector:</strong> Insert the connector + probe through the hole. The probe must point toward the open end of the can. Secure with nuts, apply silicone sealant around the outside for weatherproofing.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Connect to router:</strong> Use the N-Male to RP-SMA pigtail cable to connect the cantenna to your router's external antenna port. Point the open end of the can toward the target.</div></div>
+        </div>
+        <div class="tip-box"><strong>Pro Tip:</strong> A taller can = more gain. A 300 mm tall can of the right diameter can achieve 12–15 dBi gain. Stack two cans end-to-end (closed + open joining) for even more length. Always aim the open end at the target.</div>
+      </div>
+    </div>
+
+    <div class="vintage-divider">— ✦ —</div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- 4. YAGI -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="antenna-card" id="yagi">
+      <div class="card-header">
+        <h2>📡 Yagi-Uda Directional Antenna</h2>
+        <div class="badges">
+          <span class="badge diff-med">Medium</span>
+          <span class="badge type">Directional / High Gain</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">
+          The Yagi-Uda (simply "Yagi") is a high-gain directional antenna widely used for TV reception, amateur radio, satellite tracking, and long-range WiFi. It consists of a driven dipole element, one reflector behind it, and multiple director elements in front. More directors = more gain and narrower beam.
+        </p>
+
+        <div class="diagram">
+          <svg viewBox="0 0 500 110" xmlns="http://www.w3.org/2000/svg">
+            <line x1="40" y1="15" x2="40" y2="95" stroke="#b84c1a" stroke-width="4"/>
+            <text x="40" y="108" text-anchor="middle" fill="#c9a227" font-size="9" font-family="monospace">REFLECTOR</text>
+            <line x1="130" y1="25" x2="130" y2="85" stroke="#c9a227" stroke-width="4"/>
+            <rect x="120" y="53" width="20" height="4" fill="#b87333"/>
+            <text x="130" y="108" text-anchor="middle" fill="#c9a227" font-size="9" font-family="monospace">DIPOLE</text>
+            <line x1="30" y1="55" x2="470" y2="55" stroke="#888" stroke-width="1.5" stroke-dasharray="5"/>
+            <line x1="210" y1="28" x2="210" y2="82" stroke="#6b6b2a" stroke-width="3"/>
+            <text x="210" y="108" text-anchor="middle" fill="#6b6b2a" font-size="9" font-family="monospace">DIR 1</text>
+            <line x1="290" y1="30" x2="290" y2="80" stroke="#6b6b2a" stroke-width="3"/>
+            <text x="290" y="108" text-anchor="middle" fill="#6b6b2a" font-size="9" font-family="monospace">DIR 2</text>
+            <line x1="370" y1="32" x2="370" y2="78" stroke="#6b6b2a" stroke-width="3"/>
+            <text x="370" y="108" text-anchor="middle" fill="#6b6b2a" font-size="9" font-family="monospace">DIR 3</text>
+            <line x1="440" y1="34" x2="440" y2="76" stroke="#6b6b2a" stroke-width="3"/>
+            <text x="440" y="108" text-anchor="middle" fill="#6b6b2a" font-size="9" font-family="monospace">DIR 4</text>
+            <text x="480" y="52" fill="#f5edd6" font-size="14" font-family="monospace">→</text>
+          </svg>
+        </div>
+
+        <div class="card-grid">
+          <div class="info-block">
+            <h3>Materials Needed</h3>
+            <ul>
+              <li>Aluminium tubing or rods (6–10 mm diameter)</li>
+              <li>Boom: wooden dowel or aluminium square tube</li>
+              <li>Balun (1:1 choke) at feedpoint</li>
+              <li>SO-239 or BNC connector</li>
+              <li>U-bolts or hose clamps to mount elements</li>
+              <li>Coaxial cable (RG-58 or RG-8X)</li>
+              <li>Hacksaw, drill, tape measure</li>
+            </ul>
+          </div>
+          <div class="info-block">
+            <h3>Best Used For</h3>
+            <ul>
+              <li>UHF/VHF TV reception</li>
+              <li>Amateur radio (2m EME, satellite)</li>
+              <li>Long-range point-to-point links</li>
+              <li>WiFi 2.4 GHz directional (with small elements)</li>
+              <li>Foxhunting (hidden transmitter hunting)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="steps-title">▸ Build Instructions (3-element for 145 MHz)</div>
+        <div class="steps">
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Calculate element lengths:</strong> Reflector = 1.04 × (143/145 MHz) = 102.6 cm. Driven dipole = 98.5 cm total (two arms of 49.25 cm). Director 1 = 92.5 cm. Each director after is ~5% shorter.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Element spacing:</strong> Reflector to driven: <strong>0.2λ = 41 cm</strong>. Driven to first director: <strong>0.2λ = 41 cm</strong>. Additional directors: space 0.3–0.4λ apart (58–82 cm).</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Prepare boom:</strong> Mark element positions on the boom. Drill holes or use clamps to mount elements perpendicular to the boom. All elements must be parallel to each other.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Mount elements:</strong> Fix the reflector and directors to the boom. These are passive elements — they just mount through or to the boom with no electrical connection.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Connect driven dipole:</strong> The driven dipole is split in the center (folded dipole is better for impedance). Attach the coax center conductor to one half and the shield to the other. Add a balun to prevent pattern distortion.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Aim and connect:</strong> Mount on a mast pointing toward the target (TV tower, repeater, satellite). Connect coax to your radio. A 3-element Yagi gives ~7 dBd gain. Each additional director adds ~1 dBd.</div></div>
+        </div>
+        <div class="tip-box"><strong>Pro Tip:</strong> Use the free software <strong>MMANA-GAL</strong> or <strong>4NEC2</strong> to design and simulate any Yagi before you cut metal. It will tell you gain, SWR, and pattern for any element configuration.</div>
+      </div>
+    </div>
+
+    <div class="vintage-divider">— ✦ —</div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- 5. J-POLE -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="antenna-card" id="jpole">
+      <div class="card-header">
+        <h2>🔱 J-Pole Antenna</h2>
+        <div class="badges">
+          <span class="badge diff-med">Medium</span>
+          <span class="badge type">Vertical / VHF / UHF</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">
+          The J-Pole is a vertical end-fed antenna shaped like the letter "J". It has no ground radials, can be fed with coax directly, and has a gain of about 2–3 dBd over a dipole. Extremely popular for 2m (145 MHz) and 70cm (435 MHz) amateur radio. It can be built from copper plumbing pipe for very little cost and is very durable.
+        </p>
+        <div class="card-grid">
+          <div class="info-block">
+            <h3>Materials Needed (for 2m / 145 MHz)</h3>
+            <ul>
+              <li>Copper pipe: 1/2" or 3/4" diameter</li>
+              <li>Two 90° copper elbow fittings</li>
+              <li>One copper T-fitting (optional for cleaner build)</li>
+              <li>SO-239 chassis connector</li>
+              <li>Solder + plumbing torch (or silver solder + iron)</li>
+              <li>Copper solder wire</li>
+              <li>Pipe cutter or hacksaw</li>
+            </ul>
+          </div>
+          <div class="info-block">
+            <h3>Dimensions (145 MHz)</h3>
+            <ul>
+              <li>Long vertical section: <strong>144.3 cm</strong> (3/4 λ)</li>
+              <li>Short matching section: <strong>48.1 cm</strong> (1/4 λ)</li>
+              <li>Bottom horizontal connector: <strong>3–5 cm</strong></li>
+              <li>Gap between sections: <strong>2.5 cm</strong> (air gap)</li>
+              <li>Coax tap point: <strong>5–7 cm</strong> up from bottom of matching stub</li>
+            </ul>
+          </div>
+        </div>
+        <div class="steps-title">▸ Build Instructions</div>
+        <div class="steps">
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Cut pipe lengths:</strong> Cut the long section (144.3 cm) and the short matching stub (48.1 cm). Cut a short horizontal bottom piece (~4 cm). These form the "J" shape when assembled.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Assemble the J shape:</strong> Solder the short stub and long element to the horizontal connector piece using 90° elbows. Leave a 2.5 cm air gap between the top of the short stub and the long element — DO NOT connect them at the top.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Drill feed point hole:</strong> Drill a hole in the SHORT stub about 5–7 cm up from the bottom horizontal piece. This is where the SO-239 connector mounts.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Install connector:</strong> Mount the SO-239 in the drilled hole. Run a short wire from the center pin of the connector across the 2.5 cm gap to the long element. The outer shield connects to the short stub through the mounting hardware.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Tune:</strong> Connect an SWR meter and move the tap point (coax connection) up or down the short stub by 1 cm at a time until SWR is minimized (below 1.5:1). Lock in the position and seal with solder.</div></div>
+        </div>
+        <div class="tip-box"><strong>Pro Tip:</strong> The copper J-Pole can be weatherproofed with clear lacquer spray. Mount it as high as possible for the best range — height is everything for omnidirectional VHF antennas.</div>
+      </div>
+    </div>
+
+    <div class="vintage-divider">— ✦ —</div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- 6. MAGNETIC LOOP -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="antenna-card" id="loop">
+      <div class="card-header">
+        <h2>⭕ Magnetic Loop Antenna</h2>
+        <div class="badges">
+          <span class="badge diff-med">Medium</span>
+          <span class="badge type">HF / Compact / Indoor</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">
+          The magnetic loop (also called a small transmitting loop or STL) is a compact, tunable HF antenna perfect for indoor use, apartments, or any space-limited situation. Despite its small size (loop diameter = 1/10 to 1/3 wavelength), it performs surprisingly well and is very quiet compared to wire antennas. The key challenge is the high-Q tuning capacitor required.
+        </p>
+        <div class="card-grid">
+          <div class="info-block">
+            <h3>Materials Needed</h3>
+            <ul>
+              <li>Copper tubing: 22 mm diameter, ~3–4 metres</li>
+              <li>Large variable capacitor (250–1000 pF, high voltage rated)</li>
+              <li>Small coupling loop: ~1/5 diameter of main loop</li>
+              <li>Coax cable (RG-58)</li>
+              <li>PVC pipe or wood for frame</li>
+              <li>Pipe fittings + connectors</li>
+              <li>Optional: motor drive for remote tuning</li>
+            </ul>
+          </div>
+          <div class="info-block">
+            <h3>Best Used For</h3>
+            <ul>
+              <li>HF amateur radio (40m–10m bands)</li>
+              <li>Shortwave receiving (3–30 MHz)</li>
+              <li>Apartment/indoor HF operation</li>
+              <li>Portable field operation</li>
+              <li>Low-noise receiving antenna</li>
+            </ul>
+          </div>
+        </div>
+        <div class="steps-title">▸ Build Instructions</div>
+        <div class="steps">
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Decide target bands:</strong> A 1-metre diameter loop covers roughly 10–30 MHz (10m–30m bands). Larger loops go lower in frequency. Use the formula: circumference ≈ 0.1λ minimum.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Form the main loop:</strong> Carefully bend the 22mm copper tubing into a circle using a pipe bender. A 1m diameter loop needs about 3.14m of tube. Leave a gap at the top for the capacitor — roughly 5–10 cm gap.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Mount the capacitor:</strong> Solder or bolt the variable capacitor across the gap at the top of the loop. The capacitor must be high-voltage rated (RF voltages can reach thousands of volts when transmitting — danger!).</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Make the coupling loop:</strong> Form a small loop from coax about 1/5 the diameter of the main loop (~20 cm diameter). Connect both ends to your coax — center pin to one end, shield to the other end, forming a closed loop of coax shield.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Position coupling loop:</strong> Place the coupling loop at the bottom of the main loop, centred, and parallel to it. The coupling distance can be adjusted to match 50Ω impedance — moving closer increases coupling.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Tune:</strong> Connect to receiver. Slowly rotate the capacitor — you will hear the noise floor rise and a strong station come up sharply as you hit resonance. The loop is very high-Q and very frequency-selective.</div></div>
+        </div>
+        <div class="tip-box"><strong>Safety Warning:</strong> When transmitting through a magnetic loop, the capacitor can develop thousands of volts RF. Keep hands away and clearly mark the capacitor as a HIGH-VOLTAGE component. Receiving-only use is completely safe.</div>
+      </div>
+    </div>
+
+    <div class="vintage-divider">— ✦ —</div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- 7. PARABOLIC DISH -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="antenna-card" id="parabolic">
+      <div class="card-header">
+        <h2>🛸 Parabolic Dish Antenna</h2>
+        <div class="badges">
+          <span class="badge diff-med">Medium</span>
+          <span class="badge type">Directional / Extreme Gain</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">
+          A parabolic reflector antenna focuses incoming radio waves onto a feedhorn at the focal point, providing enormous gain. A 60 cm dish at 2.4 GHz can achieve 30+ dBi gain — enough to establish WiFi links many kilometres away. Old satellite TV dishes can be repurposed as the reflector.
+        </p>
+        <div class="card-grid">
+          <div class="info-block">
+            <h3>Materials Needed</h3>
+            <ul>
+              <li>Old satellite TV dish (60 cm or larger)</li>
+              <li>Feedhorn: cantenna or biquad antenna</li>
+              <li>LNB bracket or custom feedhorn mount</li>
+              <li>RP-SMA or N-type pigtail cable</li>
+              <li>Zip ties + metal brackets</li>
+              <li>Paint scraper (to clean dish surface)</li>
+              <li>Optional: WiFi USB adapter with external antenna port</li>
+            </ul>
+          </div>
+          <div class="info-block">
+            <h3>Best Used For</h3>
+            <ul>
+              <li>Extreme range WiFi (2.4 / 5 GHz)</li>
+              <li>Amateur radio microwave bands</li>
+              <li>Satellite signal reception</li>
+              <li>Long-distance point-to-point links (5+ km)</li>
+              <li>Radio astronomy (with large dishes)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="steps-title">▸ Build Instructions</div>
+        <div class="steps">
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Get the dish:</strong> Find an old DirecTV or Sky satellite dish. Remove the existing LNB (low-noise block converter). Clean the dish surface — it must be smooth and continuous. Fill any holes with aluminium tape.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Find the focal point:</strong> The focal length of a parabolic dish is: F = D² / (16 × depth), where D = dish diameter and depth = depth of the dish. Measure carefully and mark the focal point in front of the dish center.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Build or adapt a feedhorn:</strong> Build a cantenna (see Cantenna entry) or biquad antenna sized for your frequency. This will be your feedhorn — it goes at the focal point, facing the dish surface.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Mount feedhorn at focal point:</strong> Fabricate a mounting arm from aluminium flat bar or repurpose the LNB arm. The feedhorn must sit exactly at the focal point and be aimed back at the dish center.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Connect and align:</strong> Run coax from the feedhorn to your device. Align the dish by slowly moving it while watching signal strength — a strong peak indicates you're pointed correctly. Lock everything down once aligned.</div></div>
+        </div>
+        <div class="tip-box"><strong>Pro Tip:</strong> The larger the dish, the higher the gain — but alignment becomes critical. A 1.2m dish at 2.4 GHz has a beamwidth of only ~6°. Use a mount with fine azimuth and elevation adjustment screws for permanent installations.</div>
+      </div>
+    </div>
+
+    <div class="vintage-divider">— ✦ —</div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- 8. BI-QUAD -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="antenna-card" id="biquad">
+      <div class="card-header">
+        <h2>◇◇ Bi-Quad WiFi Antenna</h2>
+        <div class="badges">
+          <span class="badge diff-med">Medium</span>
+          <span class="badge type">Directional / 2.4 GHz</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">
+          The bi-quad is two square loops arranged in a figure-8 shape, mounted over a flat metal reflector. It achieves about 10–12 dBi gain with a clean pattern, making it an excellent WiFi directional antenna and feedhorn for parabolic dishes. Very easy to build with just copper wire and a piece of sheet metal.
+        </p>
+        <div class="card-grid">
+          <div class="info-block">
+            <h3>Materials Needed</h3>
+            <ul>
+              <li>Thick copper wire: 2 mm diameter, ~70 cm</li>
+              <li>Metal reflector plate: 120 × 120 mm (tin, copper, or aluminium)</li>
+              <li>SMA or N-type female connector</li>
+              <li>Short coax pigtail or direct solder connection</li>
+              <li>Small spacer: 15 mm height (plastic or non-conductive)</li>
+              <li>Solder + iron</li>
+            </ul>
+          </div>
+          <div class="info-block">
+            <h3>Key Dimensions (2.45 GHz WiFi)</h3>
+            <ul>
+              <li>Each square side: <strong>30.6 mm</strong></li>
+              <li>Total wire length: <strong>~245 mm</strong> (8 × 30.6)</li>
+              <li>Reflector plate: <strong>120 × 120 mm</strong></li>
+              <li>Distance from reflector to wire: <strong>15 mm</strong></li>
+              <li>Feed point: center junction between two squares</li>
+            </ul>
+          </div>
+        </div>
+        <div class="steps-title">▸ Build Instructions</div>
+        <div class="steps">
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Bend the bi-quad:</strong> Start with 250 mm of 2 mm copper wire. Bend into a figure-8 shape: two squares each 30.6 mm per side. The two squares share a center point (the feed point). The wire ends should meet at the center — do not connect them yet.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Prepare reflector plate:</strong> Cut a 120 × 120 mm piece of sheet metal. Drill a small hole in the very center for the connector or feed wire to pass through.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Mount connector:</strong> Mount your SMA connector in the hole. The center pin will connect to one wire end of the bi-quad. The outer shield connects to the other wire end. The connector body should be flush with the reflector surface.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Attach bi-quad to spacer:</strong> The bi-quad wire must sit exactly <strong>15 mm</strong> above the reflector surface. Use a plastic spacer or non-conducting standoff. Solder the two wire ends to the connector — center pin to one, outer to other.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Connect and test:</strong> Attach pigtail cable and plug into your WiFi adapter or router's external antenna port. Point the flat face of the reflector at the target access point. Expect ~11 dBi gain.</div></div>
+        </div>
+        <div class="tip-box"><strong>Pro Tip:</strong> Mount the bi-quad antenna as the feedhorn for a parabolic dish to combine both gains — the dish provides additional 15–20 dBi, giving you a total system gain of 25–30 dBi. Enough for multi-kilometre WiFi links.</div>
+      </div>
+    </div>
+
+    <div class="vintage-divider">— ✦ —</div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- 9. BEVERAGE -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="antenna-card" id="beverage">
+      <div class="card-header">
+        <h2>〰 Beverage Wire Antenna</h2>
+        <div class="badges">
+          <span class="badge diff-med">Medium</span>
+          <span class="badge type">Receiving / Low-Frequency / Directional</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">
+          The Beverage is a long travelling-wave antenna strung just above the ground, designed exclusively for receiving. Despite being simple — just a wire — it is one of the best low-frequency receiving antennas ever invented. Favoured by top-gun HF DXers for LF/MF/HF reception. Needs 100–300+ metres of land to deploy. Named after its inventor Harold Beverage.
+        </p>
+        <div class="card-grid">
+          <div class="info-block">
+            <h3>Materials Needed</h3>
+            <ul>
+              <li>Insulated wire: 100–300 metres (solid copper, 18–22 AWG)</li>
+              <li>Termination resistor: 400–600 Ω (non-inductive)</li>
+              <li>Matching transformer: 9:1 or adjustable</li>
+              <li>Ground rods (2): at each end of the wire</li>
+              <li>Support posts: wooden stakes every 10–15 m</li>
+              <li>Wire insulators</li>
+              <li>Coax cable to shack</li>
+            </ul>
+          </div>
+          <div class="info-block">
+            <h3>Best Used For</h3>
+            <ul>
+              <li>Medium wave DX (AM broadcast band)</li>
+              <li>LF/VLF receiving (below 500 kHz)</li>
+              <li>HF low-band DX (160m, 80m)</li>
+              <li>Rejecting local noise (it null's from rear)</li>
+              <li>Trans-continental / oceanic DXing</li>
+            </ul>
+          </div>
+        </div>
+        <div class="steps-title">▸ Build Instructions</div>
+        <div class="steps">
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Choose direction:</strong> The Beverage receives from the far end (where it terminates). Lay the wire pointing toward the direction you want to receive — e.g., point toward Europe to receive European stations.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>String the wire:</strong> Drive stakes every 10–15 metres along your chosen path. The wire should hang about <strong>1–2 metres above the ground</strong>. Use insulators at each post. The wire runs in a straight line.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Terminate the far end:</strong> At the far end of the wire, connect a <strong>470–600 Ω resistor</strong> between the wire and a ground rod driven into moist earth. This termination absorbs backward-travelling waves and makes the antenna directional.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Install matching transformer:</strong> At the feed end (near the shack), connect a 9:1 transformer between the wire and coax. Drive a ground rod here too and connect it to the transformer secondary ground.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Run coax to shack:</strong> Connect coax from the transformer to your receiver. The Beverage should show a strong front-to-back ratio — signals from the aimed direction will be much stronger than from behind.</div></div>
+        </div>
+        <div class="tip-box"><strong>Pro Tip:</strong> Use two Beverages pointed in opposite directions and switch between them for 360° directional coverage. The front-to-back ratio of a properly terminated 200m Beverage can exceed 30 dB — phenomenal noise rejection.</div>
+      </div>
+    </div>
+
+    <div class="vintage-divider">— ✦ —</div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- 10. QUAD -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="antenna-card" id="quad">
+      <div class="card-header">
+        <h2>🔲 Cubical Quad Antenna</h2>
+        <div class="badges">
+          <span class="badge diff-hard">Hard</span>
+          <span class="badge type">Directional / HF / High Gain</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">
+          The cubical quad is a full-wavelength loop antenna system. A driven square loop with a reflector loop behind it achieves about 2 dB more gain than a comparable Yagi, with lower angle radiation and reduced side lobes. Extremely popular among HF DXers for 10m–20m bands. Large but effective.
+        </p>
+        <div class="card-grid">
+          <div class="info-block">
+            <h3>Materials Needed</h3>
+            <ul>
+              <li>Insulated wire (for element loops)</li>
+              <li>Fibreglass or bamboo spreader arms (4 per element)</li>
+              <li>Centre support boom: aluminium or PVC pipe</li>
+              <li>Balun: 1:1 at feedpoint</li>
+              <li>Variable capacitor for reflector tuning</li>
+              <li>Rope for support and tensioning</li>
+              <li>Coax cable (RG-8 or Heliax for HF)</li>
+            </ul>
+          </div>
+          <div class="info-block">
+            <h3>Dimensions (28 MHz / 10m band)</h3>
+            <ul>
+              <li>Driven loop perimeter: <strong>1080 cm</strong> (1 full λ)</li>
+              <li>Each side of driven loop: <strong>270 cm</strong></li>
+              <li>Reflector loop perimeter: <strong>1127 cm</strong> (5% larger)</li>
+              <li>Spacing (driven to reflector): <strong>0.2λ = 214 cm</strong></li>
+              <li>Spreader arm length: <strong>191 cm</strong> (half diagonal)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="steps-title">▸ Build Instructions</div>
+        <div class="steps">
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Build spreader arms:</strong> Cut 4 fibreglass or bamboo rods per element. Each arm is the diagonal half-length. Mount the 4 arms from the boom as an "X" pattern — they hold the square wire loop in shape by tension.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>String the driven loop:</strong> Run insulated wire through the tips of the 4 spreader arms forming a square. Total perimeter = one full wavelength: <strong>306 / f(MHz)</strong> metres. Leave a gap at the bottom center for the feedpoint.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Install reflector loop:</strong> Build a second identical frame 0.2λ behind the driven loop. String the reflector wire — 5% longer than the driven loop. The reflector is a continuous (closed) loop with no gap.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Add reflector tuning:</strong> Connect a variable capacitor across the bottom center of the reflector loop. This allows you to tune the reflector for peak front-to-back ratio (typically 20+ dB). Can also use a fixed capacitor of ~40 pF for 10m.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Feed the driven element:</strong> Attach a 1:1 balun at the feedpoint gap. Connect coax to the balun. A horizontal quad is vertically polarised at the feedpoint — feed at the side for horizontal polarisation.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Tune and mount:</strong> Use an SWR meter to trim the driven loop length until resonant. The quad is best mounted on a rotator so it can be aimed at any station worldwide.</div></div>
+        </div>
+        <div class="tip-box"><strong>Pro Tip:</strong> A quad is large but the spreader arms flex and survive wind much better than rigid Yagi elements if built from fibreglass. Many operators use fibreglass kite spars — very light and strong.</div>
+      </div>
+    </div>
+
+    <div class="vintage-divider">— ✦ —</div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- 11. HELICAL -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="antenna-card" id="helical">
+      <div class="card-header">
+        <h2>🌀 Helical Antenna</h2>
+        <div class="badges">
+          <span class="badge diff-hard">Hard</span>
+          <span class="badge type">Circular Polarised / Satellite</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">
+          The helical antenna is a coiled wire mounted over a ground plane, operating in axial mode to produce circularly polarised radiation with very high gain. It is the ideal antenna for satellite communication, as satellites often transmit circular polarisation and the helix accepts it without polarisation mismatch loss. Perfect for NOAA, Meteor-M2, and amateur satellites.
+        </p>
+        <div class="card-grid">
+          <div class="info-block">
+            <h3>Materials Needed</h3>
+            <ul>
+              <li>Copper wire or strip: 4–6 mm wide, ~3+ metres</li>
+              <li>PVC pipe for winding form (diameter = λ/π)</li>
+              <li>Metal ground plane: min 0.75λ × 0.75λ square</li>
+              <li>N-type female connector</li>
+              <li>Coax cable</li>
+              <li>Zip ties or tape to hold windings</li>
+              <li>Solder + iron</li>
+            </ul>
+          </div>
+          <div class="info-block">
+            <h3>Dimensions (137 MHz / NOAA satellites)</h3>
+            <ul>
+              <li>Circumference: <strong>1 full wavelength = 219 cm</strong></li>
+              <li>Coil diameter: <strong>219 / π ≈ 69.7 cm</strong></li>
+              <li>Coil spacing (pitch): <strong>λ/4 = 54.7 cm per turn</strong></li>
+              <li>Number of turns: <strong>6–10 turns</strong></li>
+              <li>Ground plane: <strong>≥ 109 cm square</strong></li>
+            </ul>
+          </div>
+        </div>
+        <div class="steps-title">▸ Build Instructions</div>
+        <div class="steps">
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Build ground plane:</strong> Cut a square of sheet aluminium or copper at least 0.75λ per side. Drill a center hole for the N-type connector. Mount the connector and solder/bolt it securely.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Mark the winding guide:</strong> On a PVC pipe of the correct diameter, draw a helix line at the correct pitch angle (arctan(pitch/circumference) ≈ 14° for axial mode). This is your winding template.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Wind the helix:</strong> Carefully wind the copper wire or strip around the PVC pipe following the helix line. Use tape or zip ties every half-turn to hold the wire in place. Maintain consistent spacing between turns.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Mount on ground plane:</strong> Stand the PVC pipe/helix assembly on the ground plane, centered over the connector. The first turn of the helix should be about λ/4 above the ground plane for best performance.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Connect to center pin:</strong> Solder the start of the helix wire to the center pin of the N-connector on the ground plane. The direction of winding determines polarisation: right-hand for most satellites.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Test with satellite pass:</strong> Connect to your SDR or receiver and aim the helix at the sky during a NOAA or amateur satellite pass. You should receive clear signals without a rotator, as the beam is broad enough to track a pass manually.</div></div>
+        </div>
+        <div class="tip-box"><strong>Pro Tip:</strong> For best results use RHCP (right-hand circular polarisation) winding for most amateur and weather satellites. Pointing the helix straight up works for overhead passes; aim at 30–40° elevation toward north for polar orbiting satellites at the horizon.</div>
+      </div>
+    </div>
+
+    <div class="vintage-divider">— ✦ —</div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- 12. DISCONE -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="antenna-card" id="discone">
+      <div class="card-header">
+        <h2>🔻 Discone Scanner Antenna</h2>
+        <div class="badges">
+          <span class="badge diff-hard">Hard</span>
+          <span class="badge type">Wideband / Omni / Receive</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">
+          The discone is a vertical, wideband, omnidirectional antenna covering an extremely wide frequency range from its design frequency up to about 10× that frequency. It is the king of scanner and SDR antennas — connect it to an RTL-SDR and you receive everything from 25 MHz to 3 GHz with one antenna. Consists of a top disc and a lower cone of radials.
+        </p>
+        <div class="card-grid">
+          <div class="info-block">
+            <h3>Materials Needed</h3>
+            <ul>
+              <li>Stiff wire or aluminium rod (6–8 radials for cone)</li>
+              <li>Aluminium disc: cut to size or made from radials</li>
+              <li>SO-239 or N-type connector as center hub</li>
+              <li>Short vertical element (~3–5 cm for UHF start)</li>
+              <li>Coax cable (RG-58 or RG-213)</li>
+              <li>Drill, hacksaw, pliers</li>
+              <li>Waterproof sealant</li>
+            </ul>
+          </div>
+          <div class="info-block">
+            <h3>Dimensions (lowest frequency 25 MHz)</h3>
+            <ul>
+              <li>Disc diameter: <strong>λ/4 = 300 cm at 25 MHz</strong></li>
+              <li>Cone element length: <strong>same as disc radius = 150 cm</strong></li>
+              <li>Cone angle: <strong>60° from vertical</strong></li>
+              <li>Number of cone elements: <strong>8 (or more)</strong></li>
+              <li>Covers: <strong>25 MHz → 1+ GHz</strong></li>
+            </ul>
+          </div>
+        </div>
+        <div class="steps-title">▸ Build Instructions (SDR-optimised, starts at 100 MHz)</div>
+        <div class="steps">
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Calculate size:</strong> Lowest usable frequency determines size. For 100 MHz (FM band start): disc diameter = 75 cm, cone element length = 37.5 cm. For smaller indoor version starting at 400 MHz: disc = 18 cm, cone = 9 cm.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Build the disc:</strong> The disc is the top element. Either cut a circular disc of aluminium sheet or arrange 8+ radials outward from the center connector to simulate a disc. All radials must be the same length and equally spaced.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Build the cone:</strong> Cut 8 equal-length elements for the cone. Solder or bolt them to the outer shell of the SO-239 connector, evenly spaced, angled downward at <strong>60° from vertical</strong> (30° below horizontal).</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Attach disc:</strong> The disc elements connect to the center pin of the SO-239. The disc and cone elements must NOT touch each other — there should be a small gap at the waist (the connector itself provides this).</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Add short vertical stub:</strong> Solder a short wire to the very top of the disc center (3–5 cm). This extends the upper frequency coverage. For SDR use, a 3 cm stub helps coverage at GHz frequencies.</div></div>
+          <div class="step"><div class="step-num"></div><div class="step-text"><strong>Weatherproof and mount:</strong> Apply silicone sealant around all joints, especially the connector area. Mount vertically on a mast with the disc on top and cone opening downward. Connect coax to your SDR or scanner.</div></div>
+        </div>
+        <div class="tip-box"><strong>Pro Tip:</strong> The discone is the ultimate "plug it in and forget it" antenna for RTL-SDR. A 30 cm discone on your roof will receive aircraft ADS-B (1090 MHz), weather satellites (137 MHz), FM radio, amateur repeaters, air traffic control, and much more — simultaneously with a wideband SDR.</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<footer>
+  THE ANTENNA WORKSHOP &nbsp;|&nbsp; DIY ANTENNA ENCYCLOPEDIA &nbsp;|&nbsp; BUILT FOR MAKERS &amp; RADIO OPERATORS
+</footer>
+
+<script>
+  // Highlight active sidebar link on scroll
+  const cards = document.querySelectorAll('.antenna-card');
+  const links = document.querySelectorAll('aside a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const id = entry.target.id;
+        const active = document.querySelector(`aside a[href="#${id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+
+  cards.forEach(c => observer.observe(c));
+</script>
+
+</body>
+</html>
