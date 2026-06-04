@@ -1099,23 +1099,603 @@
   THE ANTENNA WORKSHOP &nbsp;|&nbsp; DIY ANTENNA ENCYCLOPEDIA &nbsp;|&nbsp; BUILT FOR MAKERS &amp; RADIO OPERATORS
 </footer>
 
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- AI ASSISTANT CHAT PANEL                                  -->
+<!-- ═══════════════════════════════════════════════════════ -->
+
+<!-- Floating trigger button -->
+<button id="chat-btn" title="Ask the AI Antenna Expert" aria-label="Open AI Chat">
+  <span class="chat-icon">📡</span>
+  <span class="chat-label">Ask AI</span>
+  <span class="chat-pulse"></span>
+</button>
+
+<!-- Chat panel -->
+<div id="chat-panel" role="dialog" aria-label="AI Antenna Assistant">
+  <div id="chat-header">
+    <div id="chat-title">
+      <span>📻</span>
+      <div>
+        <div id="chat-name">Antenna AI Expert</div>
+        <div id="chat-status">Powered by Gemini · Free</div>
+      </div>
+    </div>
+    <div id="chat-header-btns">
+      <button id="clear-btn" title="Clear conversation">↺</button>
+      <button id="settings-btn" title="API Key Settings">⚙</button>
+      <button id="close-btn" title="Close">✕</button>
+    </div>
+  </div>
+
+  <!-- API Key setup screen -->
+  <div id="api-setup">
+    <div id="setup-inner">
+      <div style="font-size:2.5rem;margin-bottom:12px;">🔑</div>
+      <div id="setup-title">Set Your Free API Key</div>
+      <p id="setup-desc">This AI runs on your free Google Gemini API key — no server, 100% private, stays in your browser.</p>
+      <ol id="setup-steps">
+        <li>Go to <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com/app/apikey</a></li>
+        <li>Click <strong>Create API Key</strong> (it's free)</li>
+        <li>Paste it below</li>
+      </ol>
+      <input type="password" id="api-key-input" placeholder="Paste your Gemini API key here..." autocomplete="off" spellcheck="false"/>
+      <button id="save-key-btn">Save &amp; Start Chatting →</button>
+      <div id="key-error"></div>
+    </div>
+  </div>
+
+  <!-- Messages area -->
+  <div id="chat-messages"></div>
+
+  <!-- Suggested questions -->
+  <div id="suggestions">
+    <button class="sug" data-q="How do I build a dipole for 145 MHz?">Dipole for 145 MHz?</button>
+    <button class="sug" data-q="What's the best antenna for WiFi range extension?">Best WiFi range antenna?</button>
+    <button class="sug" data-q="How do I make a cantenna from a tin can?">Cantenna build guide?</button>
+    <button class="sug" data-q="Which antenna should I build for ADS-B aircraft tracking?">ADS-B tracking antenna?</button>
+  </div>
+
+  <!-- Input bar -->
+  <div id="chat-input-row">
+    <textarea id="chat-input" placeholder="Ask anything about antennas, DIY builds, frequencies..." rows="1"></textarea>
+    <button id="send-btn" title="Send">➤</button>
+  </div>
+</div>
+
+<style>
+/* ── Floating button ── */
+#chat-btn {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 999;
+  background: var(--rust);
+  border: 3px solid var(--gold);
+  border-radius: 50px;
+  padding: 12px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Special Elite', cursive;
+  font-size: 0.9rem;
+  color: var(--gold);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+#chat-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(0,0,0,0.6); }
+.chat-icon { font-size: 1.2rem; }
+.chat-pulse {
+  position: absolute;
+  top: -4px; right: -4px;
+  width: 12px; height: 12px;
+  background: #4caf50;
+  border-radius: 50%;
+  border: 2px solid var(--darkbrown);
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* ── Chat panel ── */
+#chat-panel {
+  position: fixed;
+  bottom: 90px;
+  right: 28px;
+  width: 400px;
+  max-width: calc(100vw - 40px);
+  height: 580px;
+  max-height: calc(100vh - 120px);
+  background: var(--darkbrown);
+  border: 3px solid var(--gold);
+  border-radius: 8px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.7);
+  z-index: 1000;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: 'Courier Prime', monospace;
+}
+#chat-panel.open { display: flex; }
+
+/* ── Header ── */
+#chat-header {
+  background: linear-gradient(135deg, #3a2410, #5c3d1e);
+  border-bottom: 2px solid var(--gold);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+#chat-title { display: flex; align-items: center; gap: 10px; font-size: 1.4rem; }
+#chat-name { font-family: 'Special Elite', cursive; color: var(--gold); font-size: 0.95rem; }
+#chat-status { font-size: 0.68rem; color: #4caf50; letter-spacing: 1px; margin-top: 1px; }
+#chat-header-btns { display: flex; gap: 6px; }
+#chat-header-btns button {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(201,162,39,0.3);
+  color: var(--parchment);
+  border-radius: 4px;
+  width: 28px; height: 28px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+#chat-header-btns button:hover { background: rgba(201,162,39,0.2); color: var(--gold); }
+
+/* ── API Setup screen ── */
+#api-setup {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+#setup-inner { text-align: center; max-width: 320px; }
+#setup-title { font-family: 'Special Elite', cursive; color: var(--gold); font-size: 1.1rem; margin-bottom: 10px; }
+#setup-desc { color: var(--parchment); font-size: 0.8rem; line-height: 1.6; margin-bottom: 16px; opacity: 0.85; }
+#setup-steps {
+  text-align: left;
+  color: var(--parchment);
+  font-size: 0.8rem;
+  line-height: 1.9;
+  padding-left: 20px;
+  margin-bottom: 20px;
+}
+#setup-steps a { color: var(--gold); }
+#api-key-input {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 2px solid var(--copper);
+  border-radius: 4px;
+  padding: 10px 12px;
+  color: var(--parchment);
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.8rem;
+  margin-bottom: 10px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+#api-key-input:focus { border-color: var(--gold); }
+#save-key-btn {
+  width: 100%;
+  background: var(--rust);
+  border: 2px solid var(--gold);
+  color: var(--gold);
+  font-family: 'Special Elite', cursive;
+  font-size: 0.9rem;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: background 0.2s;
+}
+#save-key-btn:hover { background: #8b3412; }
+#key-error { color: #e57373; font-size: 0.78rem; margin-top: 8px; min-height: 18px; }
+
+/* ── Messages ── */
+#chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scroll-behavior: smooth;
+}
+#chat-messages::-webkit-scrollbar { width: 5px; }
+#chat-messages::-webkit-scrollbar-thumb { background: var(--copper); border-radius: 3px; }
+
+.msg {
+  max-width: 88%;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 0.84rem;
+  line-height: 1.65;
+  word-break: break-word;
+}
+.msg.user {
+  align-self: flex-end;
+  background: var(--rust);
+  color: var(--cream);
+  border-bottom-right-radius: 2px;
+}
+.msg.ai {
+  align-self: flex-start;
+  background: rgba(92,61,30,0.5);
+  border: 1px solid rgba(201,162,39,0.25);
+  color: var(--parchment);
+  border-bottom-left-radius: 2px;
+}
+.msg.ai strong { color: var(--gold); }
+.msg.ai code {
+  background: rgba(0,0,0,0.3);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.82em;
+  color: #c9a227;
+}
+.msg.ai pre {
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(201,162,39,0.2);
+  border-radius: 4px;
+  padding: 10px;
+  overflow-x: auto;
+  margin: 8px 0;
+  font-size: 0.78em;
+  color: #c9a227;
+}
+.msg.ai ul, .msg.ai ol { padding-left: 18px; margin: 6px 0; }
+.msg.ai li { margin: 3px 0; }
+.msg.ai .ai-diagram {
+  background: var(--darkbrown);
+  border: 1px solid var(--copper);
+  border-radius: 4px;
+  padding: 10px;
+  margin: 10px 0;
+  text-align: center;
+}
+.msg.ai .ai-diagram svg { max-width: 100%; height: auto; }
+.msg-time { font-size: 0.65rem; opacity: 0.45; margin-top: 4px; }
+
+/* Typing indicator */
+.typing-dots { display: flex; gap: 4px; padding: 6px 2px; align-items: center; }
+.typing-dots span {
+  width: 7px; height: 7px;
+  background: var(--copper);
+  border-radius: 50%;
+  animation: dot-bounce 1.2s ease-in-out infinite;
+}
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dot-bounce { 0%,80%,100%{transform:scale(0.7);opacity:0.5} 40%{transform:scale(1);opacity:1} }
+
+/* ── Suggestions ── */
+#suggestions {
+  padding: 8px 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border-top: 1px solid rgba(201,162,39,0.15);
+  flex-shrink: 0;
+}
+.sug {
+  background: rgba(92,61,30,0.4);
+  border: 1px solid rgba(201,162,39,0.3);
+  color: var(--parchment);
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.72rem;
+  padding: 5px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.sug:hover { background: rgba(201,162,39,0.2); border-color: var(--gold); color: var(--gold); }
+
+/* ── Input row ── */
+#chat-input-row {
+  border-top: 2px solid rgba(201,162,39,0.3);
+  padding: 10px 12px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  flex-shrink: 0;
+  background: rgba(0,0,0,0.2);
+}
+#chat-input {
+  flex: 1;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(201,162,39,0.3);
+  border-radius: 6px;
+  padding: 9px 12px;
+  color: var(--parchment);
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.85rem;
+  resize: none;
+  max-height: 120px;
+  outline: none;
+  line-height: 1.4;
+  transition: border-color 0.2s;
+}
+#chat-input:focus { border-color: var(--gold); }
+#chat-input::placeholder { opacity: 0.4; }
+#send-btn {
+  background: var(--rust);
+  border: 2px solid var(--gold);
+  color: var(--gold);
+  border-radius: 6px;
+  width: 38px;
+  height: 38px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+#send-btn:hover { background: #8b3412; }
+#send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+</style>
+
 <script>
-  // Highlight active sidebar link on scroll
+  // ── Sidebar scroll highlight ──
   const cards = document.querySelectorAll('.antenna-card');
   const links = document.querySelectorAll('aside a');
-
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         links.forEach(l => l.classList.remove('active'));
-        const id = entry.target.id;
-        const active = document.querySelector(`aside a[href="#${id}"]`);
+        const active = document.querySelector(`aside a[href="#${entry.target.id}"]`);
         if (active) active.classList.add('active');
       }
     });
   }, { threshold: 0.3 });
-
   cards.forEach(c => observer.observe(c));
+
+  // ── Chat logic ──
+  const STORAGE_KEY = 'antenna_gemini_key';
+  const MODEL = 'gemini-1.5-flash-latest';
+
+  const SYSTEM_PROMPT = `You are "The Antenna Workshop AI" — a world-class expert on DIY antenna building, radio frequency theory, ham radio, WiFi antennas, SDR (software-defined radio), satellite reception, and all things RF.
+
+Your personality: knowledgeable, friendly, practical. You're like a seasoned ham radio operator who loves helping beginners build their first antenna.
+
+Guidelines:
+- Give clear, step-by-step DIY instructions with exact measurements when asked
+- Always mention required materials with quantities
+- Explain the physics simply when helpful (wavelength, gain, radiation pattern)
+- When describing antenna shapes or structures, include a simple ASCII diagram OR describe an SVG diagram using this exact format: [SVG]..svg content here...[/SVG]
+- For SVG diagrams: use viewBox="0 0 400 150", dark background (#1a0d00), gold (#c9a227) for main elements, rust (#b84c1a) for feedpoint, parchment (#ede0c0) for labels, font-family="monospace"
+- Keep answers focused and practical — users want to BUILD things
+- Always mention safety considerations for HV situations (magnetic loops, high-power RF)
+- Mention free software tools when relevant (MMANA-GAL, 4NEC2, SDR#, etc.)
+- If user asks about a frequency, calculate the wavelength and element lengths for them`;
+
+  let chatHistory = [];
+  let isLoading = false;
+
+  // DOM refs
+  const chatPanel   = document.getElementById('chat-panel');
+  const chatBtn     = document.getElementById('chat-btn');
+  const closeBtn    = document.getElementById('close-btn');
+  const clearBtn    = document.getElementById('clear-btn');
+  const settingsBtn = document.getElementById('settings-btn');
+  const apiSetup    = document.getElementById('api-setup');
+  const messagesEl  = document.getElementById('chat-messages');
+  const inputEl     = document.getElementById('chat-input');
+  const sendBtn     = document.getElementById('send-btn');
+  const suggestions = document.getElementById('suggestions');
+  const keyInput    = document.getElementById('api-key-input');
+  const saveKeyBtn  = document.getElementById('save-key-btn');
+  const keyError    = document.getElementById('key-error');
+
+  function getKey() { return localStorage.getItem(STORAGE_KEY) || ''; }
+  function saveKey(k) { localStorage.setItem(STORAGE_KEY, k.trim()); }
+
+  function showChat() {
+    if (getKey()) {
+      apiSetup.style.display = 'none';
+      messagesEl.style.display = 'flex';
+      suggestions.style.display = 'flex';
+      document.getElementById('chat-input-row').style.display = 'flex';
+      if (chatHistory.length === 0) addWelcomeMessage();
+    } else {
+      apiSetup.style.display = 'flex';
+      messagesEl.style.display = 'none';
+      suggestions.style.display = 'none';
+      document.getElementById('chat-input-row').style.display = 'none';
+    }
+  }
+
+  function addWelcomeMessage() {
+    appendMsg('ai', `Welcome to <strong>The Antenna Workshop AI</strong> 📡<br><br>
+I can help you with:<br>
+• <strong>DIY build guides</strong> for any antenna<br>
+• <strong>Frequency &amp; dimension calculations</strong><br>
+• <strong>Choosing the right antenna</strong> for your use case<br>
+• <strong>Troubleshooting</strong> reception or SWR issues<br><br>
+What would you like to build today?`);
+  }
+
+  // Open / close panel
+  chatBtn.addEventListener('click', () => {
+    chatPanel.classList.toggle('open');
+    if (chatPanel.classList.contains('open')) { showChat(); inputEl.focus(); }
+  });
+  closeBtn.addEventListener('click', () => chatPanel.classList.remove('open'));
+
+  // Clear chat
+  clearBtn.addEventListener('click', () => {
+    chatHistory = [];
+    messagesEl.innerHTML = '';
+    addWelcomeMessage();
+  });
+
+  // Settings (re-show API setup)
+  settingsBtn.addEventListener('click', () => {
+    apiSetup.style.display = 'flex';
+    messagesEl.style.display = 'none';
+    suggestions.style.display = 'none';
+    document.getElementById('chat-input-row').style.display = 'none';
+    keyInput.value = getKey();
+  });
+
+  // Save API key
+  saveKeyBtn.addEventListener('click', async () => {
+    const k = keyInput.value.trim();
+    if (!k) { keyError.textContent = 'Please enter your API key.'; return; }
+    saveKeyBtn.textContent = 'Verifying...';
+    saveKeyBtn.disabled = true;
+    keyError.textContent = '';
+    try {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${k}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: [{ text: 'Say "OK"' }] }] })
+      });
+      if (!res.ok) throw new Error('Invalid key or quota exceeded');
+      saveKey(k);
+      keyError.style.color = '#4caf50';
+      keyError.textContent = '✓ Key saved!';
+      setTimeout(() => { showChat(); keyError.textContent = ''; keyError.style.color = '#e57373'; }, 800);
+    } catch(e) {
+      keyError.textContent = '✗ ' + e.message + ' — check your key at aistudio.google.com';
+    }
+    saveKeyBtn.textContent = 'Save & Start Chatting →';
+    saveKeyBtn.disabled = false;
+  });
+
+  // Suggestion chips
+  document.querySelectorAll('.sug').forEach(btn => {
+    btn.addEventListener('click', () => sendMessage(btn.dataset.q));
+  });
+
+  // Send on Enter (Shift+Enter = newline)
+  inputEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+  // Auto-resize textarea
+  inputEl.addEventListener('input', () => {
+    inputEl.style.height = 'auto';
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+  });
+
+  sendBtn.addEventListener('click', () => sendMessage());
+
+  function appendMsg(role, html) {
+    const d = document.createElement('div');
+    d.className = 'msg ' + role;
+    const now = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    d.innerHTML = html + `<div class="msg-time">${now}</div>`;
+    // Render SVG diagrams from [SVG]...[/SVG] tags
+    d.innerHTML = d.innerHTML.replace(/\[SVG\]([\s\S]*?)\[\/SVG\]/g, (_, svgContent) => {
+      return `<div class="ai-diagram">${svgContent}</div>`;
+    });
+    messagesEl.appendChild(d);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return d;
+  }
+
+  function showTyping() {
+    const d = document.createElement('div');
+    d.className = 'msg ai';
+    d.id = 'typing-indicator';
+    d.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+    messagesEl.appendChild(d);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function removeTyping() {
+    const t = document.getElementById('typing-indicator');
+    if (t) t.remove();
+  }
+
+  // Convert markdown-ish text to HTML
+  function formatAIText(text) {
+    return text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/```([\s\S]*?)```/g, '<pre>$1</pre>')
+      .replace(/^#{1,3} (.+)$/gm, '<strong style="color:var(--gold);font-size:0.95em">$1</strong>')
+      .replace(/^[\-\*] (.+)$/gm, '• $1')
+      .replace(/\n{2,}/g, '<br><br>')
+      .replace(/\n/g, '<br>');
+  }
+
+  async function sendMessage(overrideText) {
+    if (isLoading) return;
+    const text = (overrideText || inputEl.value).trim();
+    if (!text) return;
+
+    const key = getKey();
+    if (!key) { showChat(); return; }
+
+    // Show user message
+    appendMsg('user', text.replace(/</g,'&lt;').replace(/>/g,'&gt;'));
+    inputEl.value = '';
+    inputEl.style.height = 'auto';
+
+    // Hide suggestions after first message
+    suggestions.style.display = 'none';
+
+    // Add to history
+    chatHistory.push({ role: 'user', parts: [{ text }] });
+
+    isLoading = true;
+    sendBtn.disabled = true;
+    showTyping();
+
+    try {
+      // Build contents array: system prompt as first user turn
+      const contents = [
+        { role: 'user', parts: [{ text: SYSTEM_PROMPT + '\n\nUser says: ' + text }] },
+        ...chatHistory.slice(0, -1).map(m => ({ role: m.role, parts: m.parts })),
+        { role: 'user', parts: [{ text }] }
+      ];
+
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: chatHistory.map(m => ({ role: m.role, parts: m.parts })),
+            system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+            generationConfig: { temperature: 0.7, maxOutputTokens: 1500 }
+          })
+        }
+      );
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error?.message || 'API error ' + res.status);
+      }
+
+      const data = await res.json();
+      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response received.';
+
+      chatHistory.push({ role: 'model', parts: [{ text: reply }] });
+      removeTyping();
+      appendMsg('ai', formatAIText(reply));
+
+    } catch(e) {
+      removeTyping();
+      appendMsg('ai', `<span style="color:#e57373">⚠ Error: ${e.message}</span><br><small>Check your API key in ⚙ settings or visit <a href="https://aistudio.google.com" target="_blank" style="color:var(--gold)">aistudio.google.com</a></small>`);
+    }
+
+    isLoading = false;
+    sendBtn.disabled = false;
+    inputEl.focus();
+  }
+
+  // Init on load
+  showChat();
 </script>
 
 </body>
