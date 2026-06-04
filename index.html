@@ -1770,6 +1770,11 @@ What would you like to build today?`);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   .sr-none { padding: 18px 14px; color: var(--parchment); font-size: 0.82rem; opacity: 0.55; text-align: center; }
   mark.page-hl { background: rgba(201,162,39,0.35); border-radius: 2px; padding: 0 2px; }
+  .wiki-badge {
+    display: inline-block; font-size: 0.62rem; background: #3366aa;
+    color: #fff; padding: 1px 5px; border-radius: 2px;
+    margin-left: 6px; vertical-align: middle; letter-spacing: 1px;
+  }
 </style>
 
 <script>
@@ -1829,7 +1834,82 @@ What would you like to build today?`);
     return (start > 0 ? '…' : '') + highlight(raw, query) + '…';
   }
 
-  function search(query) {
+  // ── Render results HTML (local + wiki placeholder + google) ──
+  function renderResults(query, localItems, wikiItems) {
+    let html = '';
+
+    // Section 1: Local
+    if (localItems.length > 0) {
+      html += `<div class="sr-section">📡 This Wiki (${localItems.length} found)</div>`;
+      localItems.slice(0, 5).forEach(a => {
+        html += `<a class="sr-item" href="#${a.id}" data-id="${a.id}">
+          <div class="sr-icon">${a.icon}</div>
+          <div>
+            <div class="sr-title">${highlight(a.title, query)}<span class="sr-diff ${a.diff}">${a.diff}</span></div>
+            <div class="sr-snippet">${getSnippet(a.desc, query)}</div>
+          </div>
+        </a>`;
+      });
+    } else {
+      html += `<div class="sr-none">No local results for "<strong>${query}</strong>"</div>`;
+    }
+
+    // Section 2: Wikipedia / Kiwix
+    html += `<div class="sr-section">📖 Wikipedia (Kiwix)</div>`;
+    if (wikiItems === null) {
+      html += `<div class="sr-none" id="wiki-loading">⏳ Searching Wikipedia…</div>`;
+    } else if (wikiItems.length === 0) {
+      html += `<div class="sr-none">No Wikipedia results found.</div>`;
+    } else {
+      wikiItems.forEach(w => {
+        html += `<a class="sr-item" href="${w.url}" target="_blank" rel="noopener">
+          <div class="sr-icon">📖</div>
+          <div>
+            <div class="sr-title">${highlight(w.title, query)}</div>
+            <div class="sr-snippet">${w.snippet}</div>
+          </div>
+          <span style="margin-left:auto;flex-shrink:0;opacity:0.4;font-size:0.75rem;padding-top:4px">↗</span>
+        </a>`;
+      });
+    }
+
+    // Section 3: Google
+    const gq = encodeURIComponent('antenna DIY ' + query);
+    html += `<a class="sr-google" href="https://www.google.com/search?q=${gq}" target="_blank" rel="noopener">
+      <span class="g-logo">G</span>
+      <span>Search Google &nbsp;<strong>"antenna ${query}"</strong></span>
+      <span style="margin-left:auto;opacity:0.4;font-size:0.75rem">↗</span>
+    </a>`;
+
+    results.innerHTML = html;
+    results.classList.add('open');
+
+    // Local result click → scroll + highlight
+    results.querySelectorAll('.sr-item[data-id]').forEach(item => {
+      item.addEventListener('click', () => {
+        results.classList.remove('open');
+        highlightInPage(query);
+      });
+    });
+  }
+
+  // ── Wikipedia API fetch ──
+  async function fetchWikipedia(query) {
+    try {
+      const wq = encodeURIComponent(query + ' antenna');
+      const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${wq}&srlimit=4&srnamespace=0&format=json&origin=*`;
+      const res = await fetch(url);
+      if (!res.ok) return [];
+      const data = await res.json();
+      return (data.query?.search || []).map(item => ({
+        title: item.title,
+        snippet: item.snippet.replace(/<[^>]+>/g, '').slice(0, 120) + '…',
+        url: `https://en.wikipedia.org/wiki/${encodeURIComponent(item.title.replace(/ /g,'_'))}`
+      }));
+    } catch { return []; }
+  }
+
+  async function search(query) {
     const q = query.trim().toLowerCase();
     if (!q) { results.classList.remove('open'); return; }
 
@@ -1844,41 +1924,12 @@ What would you like to build today?`);
       return { ...a, score };
     }).filter(a => a.score > 0).sort((a,b) => b.score - a.score);
 
-    let html = '';
+    // Show immediately with Wikipedia loading spinner
+    renderResults(query, scored, null);
 
-    if (scored.length > 0) {
-      html += `<div class="sr-section">Found in Wiki (${scored.length})</div>`;
-      scored.slice(0, 6).forEach(a => {
-        html += `<a class="sr-item" href="#${a.id}" data-id="${a.id}">
-          <div class="sr-icon">${a.icon}</div>
-          <div>
-            <div class="sr-title">${highlight(a.title, query)}<span class="sr-diff ${a.diff}">${a.diff}</span></div>
-            <div class="sr-snippet">${getSnippet(a.desc, query)}</div>
-          </div>
-        </a>`;
-      });
-    } else {
-      html += `<div class="sr-none">No local results for "<strong>${query}</strong>"</div>`;
-    }
-
-    // Always show Google search option
-    const gq = encodeURIComponent('antenna DIY ' + query);
-    html += `<a class="sr-google" href="https://www.google.com/search?q=${gq}" target="_blank" rel="noopener">
-      <span class="g-logo">G</span>
-      <span>Search Google for &nbsp;<strong>"${query}"</strong>&nbsp; — antenna DIY</span>
-      <span style="margin-left:auto;opacity:0.4;font-size:0.75rem">↗</span>
-    </a>`;
-
-    results.innerHTML = html;
-    results.classList.add('open');
-
-    // Click local result → scroll + highlight
-    results.querySelectorAll('.sr-item').forEach(item => {
-      item.addEventListener('click', () => {
-        results.classList.remove('open');
-        highlightInPage(query);
-      });
-    });
+    // Fetch Wikipedia async, then update
+    const wikiItems = await fetchWikipedia(query);
+    renderResults(query, scored, wikiItems);
   }
 
   function highlightInPage(query) {
