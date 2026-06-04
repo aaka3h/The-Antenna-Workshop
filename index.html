@@ -1459,7 +1459,7 @@
 
   // ── Chat logic ──
   const STORAGE_KEY = 'antenna_gemini_key';
-  const MODEL = 'gemini-1.5-flash-latest';
+  const MODEL = 'gemini-2.0-flash';
 
   const SYSTEM_PROMPT = `You are "The Antenna Workshop AI" — a world-class expert on DIY antenna building, radio frequency theory, ham radio, WiFi antennas, SDR (software-defined radio), satellite reception, and all things RF.
 
@@ -1553,12 +1553,15 @@ What would you like to build today?`);
     saveKeyBtn.disabled = true;
     keyError.textContent = '';
     try {
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${k}`, {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${k}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: 'Say "OK"' }] }] })
+        body: JSON.stringify({ contents: [{ parts: [{ text: 'Say OK' }] }] })
       });
-      if (!res.ok) throw new Error('Invalid key or quota exceeded');
+      if (!res.ok) {
+        const e = await res.json().catch(() => ({}));
+        throw new Error(e.error?.message || 'HTTP ' + res.status);
+      }
       saveKey(k);
       keyError.style.color = '#4caf50';
       keyError.textContent = '✓ Key saved!';
