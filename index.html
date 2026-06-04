@@ -1,3 +1,7 @@
+https://raw.githubusercontent.com/aaka3h/The-Antenna-Workshop/main/index.html
+→ https://raw.githubusercontent.com/aaka3h/The-Antenna-Workshop/main/index.html
+Content-Type: text/plain; charset=utf-8
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1699,6 +1703,239 @@ What would you like to build today?`);
 
   // Init on load
   showChat();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SEARCH FEATURE                                           -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<style>
+  #search-wrap {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.07);
+    border: 2px solid var(--gold); border-radius: 6px;
+    padding: 6px 12px; min-width: 240px;
+  }
+  #search-wrap .s-icon { color: var(--gold); font-size: 1rem; flex-shrink: 0; }
+  #search-input {
+    background: none; border: none; outline: none;
+    color: var(--parchment); font-family: 'Courier Prime', monospace;
+    font-size: 0.88rem; width: 100%;
+  }
+  #search-input::placeholder { opacity: 0.45; color: var(--parchment); }
+  #search-clear {
+    background: none; border: none; color: var(--gold);
+    cursor: pointer; font-size: 1rem; flex-shrink: 0;
+    opacity: 0.6; display: none;
+  }
+  #search-clear:hover { opacity: 1; }
+  #search-container { position: relative; }
+  #search-results {
+    position: absolute; top: calc(100% + 8px); right: 0;
+    width: 420px; max-width: calc(100vw - 32px);
+    background: var(--darkbrown); border: 2px solid var(--gold);
+    border-radius: 6px; box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+    z-index: 500; max-height: 480px; overflow-y: auto; display: none;
+  }
+  #search-results.open { display: block; }
+  .sr-section {
+    padding: 10px 14px 6px; font-size: 0.68rem; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--copper);
+    border-bottom: 1px solid rgba(201,162,39,0.2);
+    font-family: 'Special Elite', cursive;
+  }
+  .sr-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 14px; cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.15s; text-decoration: none;
+  }
+  .sr-item:hover { background: rgba(201,162,39,0.12); }
+  .sr-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+  .sr-title { font-family: 'Special Elite', cursive; color: var(--gold); font-size: 0.9rem; }
+  .sr-snippet { font-size: 0.75rem; color: var(--parchment); opacity: 0.7; margin-top: 2px; line-height: 1.5; }
+  .sr-snippet mark { background: rgba(201,162,39,0.3); color: var(--gold); border-radius: 2px; padding: 0 2px; font-style: normal; }
+  .sr-diff { font-size: 0.65rem; padding: 2px 6px; border-radius: 2px; margin-left: 6px; vertical-align: middle; font-family: monospace; letter-spacing: 1px; }
+  .sr-diff.easy { background: #6b6b2a; color: #fff; }
+  .sr-diff.med  { background: #8b6914; color: #fff; }
+  .sr-diff.hard { background: #7a1c1c; color: #fff; }
+  .sr-google {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 14px; cursor: pointer; color: var(--parchment);
+    font-size: 0.85rem; transition: background 0.15s; text-decoration: none;
+    border-top: 1px solid rgba(201,162,39,0.2);
+  }
+  .sr-google:hover { background: rgba(201,162,39,0.1); }
+  .g-logo { font-weight: bold; font-family: sans-serif; font-size: 0.95rem;
+    background: linear-gradient(90deg,#4285f4 0%,#ea4335 30%,#fbbc05 60%,#34a853 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .sr-none { padding: 18px 14px; color: var(--parchment); font-size: 0.82rem; opacity: 0.55; text-align: center; }
+  mark.page-hl { background: rgba(201,162,39,0.35); border-radius: 2px; padding: 0 2px; }
+</style>
+
+<script>
+(function() {
+  // ── Build search index from antenna cards ──
+  const antennaData = [];
+  document.querySelectorAll('.antenna-card').forEach(card => {
+    const id    = card.id;
+    const title = card.querySelector('.card-header h2')?.textContent.trim() || '';
+    const desc  = card.querySelector('.card-desc')?.textContent.trim() || '';
+    const steps = Array.from(card.querySelectorAll('.step-text')).map(s => s.textContent).join(' ');
+    const mats  = Array.from(card.querySelectorAll('.info-block')).map(b => b.textContent).join(' ');
+    const diff  = card.querySelector('.badge.diff-easy') ? 'easy'
+                : card.querySelector('.badge.diff-med')  ? 'med' : 'hard';
+    const icon  = title.match(/^(\S+)/)?.[1] || '📡';
+    const cleanTitle = title.replace(/^(\S+\s)/, '').trim();
+    antennaData.push({ id, title: cleanTitle, icon, desc, steps, mats, diff,
+      corpus: (title + ' ' + desc + ' ' + steps + ' ' + mats).toLowerCase() });
+  });
+
+  // ── Inject search bar into header ──
+  const header = document.querySelector('header');
+  const searchContainer = document.createElement('div');
+  searchContainer.id = 'search-container';
+  searchContainer.innerHTML = `
+    <div id="search-wrap">
+      <span class="s-icon">🔍</span>
+      <input id="search-input" type="text" placeholder="Search antennas, frequencies, materials..." autocomplete="off" spellcheck="false"/>
+      <button id="search-clear" title="Clear">✕</button>
+    </div>
+    <div id="search-results"></div>`;
+  // Insert between title div and signal icon
+  const signalIcon = header.querySelector('.signal-icon');
+  header.insertBefore(searchContainer, signalIcon);
+
+  const input   = document.getElementById('search-input');
+  const results = document.getElementById('search-results');
+  const clearBtn = document.getElementById('search-clear');
+
+  function highlight(text, query) {
+    if (!query) return text;
+    const words = query.trim().split(/\s+/).filter(Boolean);
+    const re = new RegExp(`(${words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')})`, 'gi');
+    return text.replace(re, '<mark>$1</mark>');
+  }
+
+  function getSnippet(text, query) {
+    const lower = text.toLowerCase();
+    const words = query.toLowerCase().trim().split(/\s+/);
+    let best = 0;
+    words.forEach(w => {
+      const idx = lower.indexOf(w);
+      if (idx > best) best = idx;
+    });
+    const start = Math.max(0, best - 40);
+    const raw = text.slice(start, start + 120).trim();
+    return (start > 0 ? '…' : '') + highlight(raw, query) + '…';
+  }
+
+  function search(query) {
+    const q = query.trim().toLowerCase();
+    if (!q) { results.classList.remove('open'); return; }
+
+    const words = q.split(/\s+/);
+    const scored = antennaData.map(a => {
+      let score = 0;
+      words.forEach(w => {
+        if (a.title.toLowerCase().includes(w)) score += 10;
+        if (a.desc.toLowerCase().includes(w))  score += 5;
+        if (a.corpus.includes(w))               score += 2;
+      });
+      return { ...a, score };
+    }).filter(a => a.score > 0).sort((a,b) => b.score - a.score);
+
+    let html = '';
+
+    if (scored.length > 0) {
+      html += `<div class="sr-section">Found in Wiki (${scored.length})</div>`;
+      scored.slice(0, 6).forEach(a => {
+        html += `<a class="sr-item" href="#${a.id}" data-id="${a.id}">
+          <div class="sr-icon">${a.icon}</div>
+          <div>
+            <div class="sr-title">${highlight(a.title, query)}<span class="sr-diff ${a.diff}">${a.diff}</span></div>
+            <div class="sr-snippet">${getSnippet(a.desc, query)}</div>
+          </div>
+        </a>`;
+      });
+    } else {
+      html += `<div class="sr-none">No local results for "<strong>${query}</strong>"</div>`;
+    }
+
+    // Always show Google search option
+    const gq = encodeURIComponent('antenna DIY ' + query);
+    html += `<a class="sr-google" href="https://www.google.com/search?q=${gq}" target="_blank" rel="noopener">
+      <span class="g-logo">G</span>
+      <span>Search Google for &nbsp;<strong>"${query}"</strong>&nbsp; — antenna DIY</span>
+      <span style="margin-left:auto;opacity:0.4;font-size:0.75rem">↗</span>
+    </a>`;
+
+    results.innerHTML = html;
+    results.classList.add('open');
+
+    // Click local result → scroll + highlight
+    results.querySelectorAll('.sr-item').forEach(item => {
+      item.addEventListener('click', () => {
+        results.classList.remove('open');
+        highlightInPage(query);
+      });
+    });
+  }
+
+  function highlightInPage(query) {
+    // Remove old highlights
+    document.querySelectorAll('mark.page-hl').forEach(m => {
+      m.replaceWith(document.createTextNode(m.textContent));
+    });
+    if (!query) return;
+    const words = query.trim().split(/\s+/).filter(w => w.length > 2);
+    const re = new RegExp(`(${words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')})`, 'gi');
+    // Walk text nodes in main content only
+    const main = document.querySelector('main');
+    const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(node => {
+      if (!re.test(node.textContent)) return;
+      re.lastIndex = 0;
+      const span = document.createElement('span');
+      span.innerHTML = node.textContent.replace(re, '<mark class="page-hl">$1</mark>');
+      node.parentNode.replaceChild(span, node);
+    });
+  }
+
+  let debounceTimer;
+  input.addEventListener('input', () => {
+    const q = input.value;
+    clearBtn.style.display = q ? 'block' : 'none';
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => search(q), 180);
+  });
+
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { results.classList.remove('open'); input.blur(); }
+    if (e.key === 'Enter') {
+      const first = results.querySelector('.sr-item');
+      if (first) { first.click(); first.href && (location.href = first.href); }
+    }
+  });
+
+  clearBtn.addEventListener('click', () => {
+    input.value = '';
+    clearBtn.style.display = 'none';
+    results.classList.remove('open');
+    highlightInPage('');
+    input.focus();
+  });
+
+  // Close on outside click
+  document.addEventListener('click', e => {
+    if (!searchContainer.contains(e.target)) results.classList.remove('open');
+  });
+
+  input.addEventListener('focus', () => {
+    if (input.value) search(input.value);
+  });
+})();
 </script>
 
 </body>
