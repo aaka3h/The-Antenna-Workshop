@@ -33,18 +33,16 @@
 
     /* ── Header ── */
     header {
-  background: var(--darkbrown);
-  border-bottom: 4px solid var(--gold);
-  padding: 14px 32px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
+      background: var(--darkbrown);
+      border-bottom: 4px solid var(--gold);
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
     header h1 {
       font-family: 'Special Elite', cursive;
       color: var(--gold);
@@ -379,6 +377,14 @@
   <div>
     <h1>The <span>Antenna</span> Workshop</h1>
     <div class="header-sub">DIY Antenna Encyclopedia &amp; Build Guide</div>
+  </div>
+  <div id="search-container">
+    <div id="search-wrap">
+      <span class="s-icon">🔍</span>
+      <input id="search-input" type="text" placeholder="Search antennas, freq, materials..." autocomplete="off" spellcheck="false"/>
+      <button id="search-clear" title="Clear">✕</button>
+    </div>
+    <div id="search-results"></div>
   </div>
   <div class="signal-icon">〰</div>
 </header>
